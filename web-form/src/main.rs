@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use axum::{extract::State, http::StatusCode, routing::get, Form, Router};
-use k8s_openapi::{api::{batch::v1::{Job, JobSpec}, core::v1::{Container, PodSpec, PodTemplateSpec}}, serde_json::json};
+use k8s_openapi::{api::{batch::v1::{Job, JobSpec}, core::v1::{ClaimSource, Container, PodResourceClaim, PodSpec, PodTemplateSpec, ResourceClaim, ResourceRequirements}}, serde_json::json};
 use kube::{
     api::{ObjectMeta, PostParams},
     Api, Client,
@@ -96,9 +96,20 @@ async fn post_root(
                                     "-c".to_string(),
                                     curl_command.join(" "),
                                 ]),
+                                resources: Some(ResourceRequirements{
+                                    claims: Some(vec![ResourceClaim{name:"love-machine".to_string()}]),
+                                    ..Default::default()
+                                }),
                                 ..Default::default()
                             }
                         ],
+                        resource_claims: Some(vec![PodResourceClaim{
+                            name: "love-machine".to_string(),
+                            source: Some(ClaimSource{
+                                resource_claim_name: None,
+                                resource_claim_template_name: Some("love-machine-claim".to_string())
+                            })
+                        }]),
                         ..Default::default()
                     })
                 },
