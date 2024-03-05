@@ -8,6 +8,7 @@ use kube::{
 };
 use maud::{html, Markup};
 use serde::Deserialize;
+use log::error;
 
 const ICONS: [&str; 5] = ["akri", "edgeDay", "kubeCon", "Suse", "Rancher"];
 
@@ -17,6 +18,7 @@ struct AppState {
 
 #[tokio::main]
 async fn main() {
+    env_logger::Builder::new().init();
     let client = Client::try_default().await.unwrap();
     let state = Arc::new(AppState { client });
     // build our application with a single route
@@ -124,7 +126,10 @@ async fn post_root(
         Ok(_) => Ok(html! {
             h1 { "Printing ..." }
         }),
-        Err(_) => Err(StatusCode::INTERNAL_SERVER_ERROR),
+        Err(e) => {
+            error!("Error while creating job: {}", e);
+            Err(StatusCode::INTERNAL_SERVER_ERROR)
+        },
     }
     
 }
