@@ -1,0 +1,28 @@
+[package]
+name = "akri-kubecon-demo"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+axum = "0.7.4"
+clap = { version = "4.4.18", features = ["derive", "string"] }
+clap-verbosity-flag = "2.1.2"
+display-interface-spi = "0.4.1"
+embedded-graphics = "0.8.1"
+embedded-graphics-framebuf = "0.5.0"
+env_logger = "0.11.1"
+futures = "0.3.30"
+gethostname = "0.4.3"
+image = { version= "0.24.8", default-features = false, features = ["png", "qoi"] }
+local-ip-address = "0.6.1"
+log = "0.4.20"
+mdns-sd = "0.10.4"
+mipidsi = "0.7.1"
+rppal = { version = "0.17.1", features = ["hal"] }
+serde = { version = "1.0.196", features = ["derive"] }
+thiserror = "1.0.56"
+tinyqoi = "0.2.0"
+tokio = { version = "1.36.0", features = ["rt", "net", "rt-multi-thread", "signal"] }
+zbus = { version = "4.0.1", default-features = false, features = ["tokio"] }

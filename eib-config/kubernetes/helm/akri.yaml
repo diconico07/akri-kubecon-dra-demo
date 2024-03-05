@@ -1,0 +1,15 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: akri
+  namespace: kube-system
+spec:
+  chart: akri
+  targetNamespace: akri
+  createNamespace: true
+  version: v0.12.20
+  repo: https://download.opensuse.org/repositories/home:/nbelouin:/dra/charts/
+  valuesContent: |-
+    webhookConfiguration:
+      enabled: false
+    kubernetesDistro: k3s

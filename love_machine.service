@@ -1,0 +1,8 @@
+[Unit]
+Description=Love Machine Demo Service
+
+[Service]
+ExecStart=/root/akri-kubecon-demo
+
+[Install]
+WantedBy=multi-user.target

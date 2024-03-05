@@ -1,0 +1,37 @@
+apiVersion: 1.0
+image:
+  imageType: iso
+  arch: x86_64
+  baseImage: slemicro5.5.iso
+  outputImageName: eibimage.iso
+operatingSystem:
+  isoConfiguration:
+    installDevice: /dev/mmcblk2
+    unattended: true
+  time:
+    timezone: Europe/Paris
+    ntp:
+      forceWait: true
+      pools:
+        - 2.suse.pool.ntp.org
+  keymap: us
+  users:
+    - username: root
+      encryptedPassword: $6$PYWbz8.zLUxBBLkt$VxX5WLuzBPtBWDTvAu7uUq3I2aQcGlpXhuZmbk/oUrghIz6MiQ7btvlVz8c2Ebg41S2yZ2ANoxya/O3WYHz40/
+      sshKeys:
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIv0siv6fVEH/UbyFTEv6xwckKB48pGAQctFzDeMtxUW diconico07@hephaistos
+  packages:
+    sccRegistrationCode: %%SCC_REGCODE%%
+kubernetes:
+  version: v1.29.1+rke2r1
+  network:
+    apiVIP: 192.168.88.5
+    apiHost: kube-api.edge.heptaoctet.net
+  nodes:
+    - hostname: latte-1.edge.heptaoctet.net
+      type: server
+      initializer: true
+    - hostname: latte-2.edge.heptaoctet.net
+      type: server
+    - hostname: latte-3.edge.heptaoctet.net
+      type: server

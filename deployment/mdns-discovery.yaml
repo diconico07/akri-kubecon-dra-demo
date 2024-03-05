@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: akri-mdns-discovery-daemonset
+  labels:
+    app.kubernetes.io/name: akri-mdns-discovery
+    app.kubernetes.io/component: discovery-handler
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: akri-mdns-discovery
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: akri-mdns-discovery
+        app.kubernetes.io/component: discovery-handler
+    spec:
+      hostNetwork: true
+      containers:
+      - name: akri-mdns-discovery
+        image: registry.opensuse.org/home/nbelouin/dra/images/edge/mdns-discovery-handler:v1709567598
+        env:
+        - name: DISCOVERY_HANDLERS_DIRECTORY
+          value: /var/lib/akri
+        volumeMounts:
+        - name: discovery-handlers
+          mountPath: /var/lib/akri
+      nodeSelector:
+        "kubernetes.io/os": linux
+      volumes:
+      - name: discovery-handlers
+        hostPath:
+          path: /var/lib/akri
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClass
+metadata:
+  name: love-machine
+driverName: akri.sh
+parametersRef:
+  apiGroup: akri.sh
+  kind: DiscoveryConfiguration
+  name: love-machine
+---
+apiVersion: akri.sh/v1alpha1
+kind: DiscoveryConfiguration
+metadata:
+  name: love-machine
+spec:
+  discoveryHandlerName: mdns
+  discoveryDetails: |+
+    serviceName: _love-machine._tcp.local.
+  instancesCapacity: 1
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata:
+  name: love-machine-claim
+spec:
+  spec:
+    resourceClassName: love-machine

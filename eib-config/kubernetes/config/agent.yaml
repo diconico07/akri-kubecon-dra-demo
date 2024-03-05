@@ -1,0 +1,4 @@
+token: hahHilien8rei2Ba
+selinux: true
+kubelet-arg:
+  - "feature-gates=DynamicResourceAllocation=true"

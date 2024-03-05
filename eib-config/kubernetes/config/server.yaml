@@ -1,0 +1,11 @@
+token: hahHilien8rei2Ba
+selinux: true
+kube-apiserver-arg:
+  - "feature-gates=DynamicResourceAllocation=true"
+  - "runtime-config=resource.k8s.io/v1alpha2=true"
+kube-scheduler-arg:
+  - "feature-gates=DynamicResourceAllocation=true"
+kube-controller-manager-arg:
+  - "feature-gates=DynamicResourceAllocation=true"
+kubelet-arg:
+  - "feature-gates=DynamicResourceAllocation=true"
