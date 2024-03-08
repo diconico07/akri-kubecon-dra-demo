@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: demo-web-form
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: default
+  name: web-printer
+rules:
+- apiGroups: ["batch"] # "" indicates the core API group
+  resources: ["jobs"]
+  verbs: ["*"]
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["list", "get"]
+- apiGroups: ["resource.k8s.io"]
+  resources: ["resourceclaims"]
+  verbs: ["list", "get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+# This role binding allows "jane" to read pods in the "default" namespace.
+# You need to already have a Role named "pod-reader" in that namespace.
+kind: RoleBinding
+metadata:
+  name: web-printer
+  namespace: default
+subjects:
+# You can specify more than one "subject"
+- kind: ServiceAccount
+  name: demo-web-form
+  namespace: default
+roleRef:
+  # "roleRef" specifies the binding to a Role / ClusterRole
+  kind: Role #this must be Role or ClusterRole
+  name: web-printer # this must match the name of the Role or ClusterRole you wish to bind to
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-form-deployment
+  labels:
+    app: web-form
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-form
+  template:
+    metadata:
+      labels:
+        app: web-form
+    spec:
+      containers:
+      - name: web-form
+        image: registry.opensuse.org/home/nbelouin/dra/images/edge/web-form:v1709636000.45
+        ports:
+        - containerPort: 8080
+      serviceAccountName: demo-web-form
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-form
+spec:
+  selector:
+    app: web-form
+  ports:
+    - protocol: TCP
+      port: 8080
