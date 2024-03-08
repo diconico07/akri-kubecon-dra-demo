@@ -23,9 +23,9 @@ pub enum PrintError {
     Paused,
 }
 
-impl From<PrintError> for StatusCode {
-    fn from(_value: PrintError) -> Self {
-        StatusCode::SERVICE_UNAVAILABLE
+impl From<PrintError> for (StatusCode, String) {
+    fn from(value: PrintError) -> Self {
+        (StatusCode::SERVICE_UNAVAILABLE, value.to_string())
     }
 }
 

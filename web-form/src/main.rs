@@ -70,13 +70,13 @@ async fn post_root(
         "POST".to_string(),
         "--retry".to_string(),
         "20".to_string(),
-        format!("http://${{MDNS_IP_ADDRESS_0}}:${{MDNS_PORT}}/love/{}", form.icon),
+        format!("\"http://${{MDNS_IP_ADDRESS_0}}:${{MDNS_PORT}}/love/{}\"", form.icon),
         "-H".to_string(),
-        "Content-Type: application/json".to_string(),
+        "'Content-Type: application/json'".to_string(),
         "-d".to_string(),
-        json!({
+        format!("'{}'", json!({
             "name": form.name,
-        }).to_string(),
+        })),
     ];
     let result = api.create(
         &PostParams::default(),
@@ -92,6 +92,7 @@ async fn post_root(
                     spec: Some(PodSpec{
                         containers: vec![
                             Container{
+                                name: "curl".to_string(),
                                 image: Some("curlimages/curl:8.6.0".to_string()),
                                 command: Some(vec![
                                     "/bin/sh".to_string(),
@@ -112,6 +113,7 @@ async fn post_root(
                                 resource_claim_template_name: Some("love-machine-claim".to_string())
                             })
                         }]),
+                        restart_policy: Some("OnFailure".to_string()),
                         ..Default::default()
                     })
                 },

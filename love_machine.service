@@ -1,8 +1,11 @@
 [Unit]
 Description=Love Machine Demo Service
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 ExecStart=/root/akri-kubecon-demo
+WorkingDirectory=/root
 
 [Install]
 WantedBy=multi-user.target

@@ -103,11 +103,11 @@ async fn print_heart_page(
     State(state): State<Arc<AppState<'_>>>,
     Path(icon): Path<String>,
     Json(payload): Json<PrintParams>,
-) -> Result<(), StatusCode> {
+) -> Result<(), (StatusCode, String)> {
     let image = ImageReader::open(state.options.icons_path.join(format!("{}.png", icon)))
-        .map_err(|_| StatusCode::NOT_FOUND)?
+        .map_err(|_| (StatusCode::NOT_FOUND, "Not Found".to_owned()))?
         .decode()
-        .map_err(|_| StatusCode::NOT_FOUND)?
+        .map_err(|_| (StatusCode::NOT_FOUND, "Not Found".to_owned()))?
         .resize(256, 256, image::imageops::FilterType::Triangle);
     let heart = ImageReader::open("heart.png")
         .unwrap()
@@ -117,11 +117,11 @@ async fn print_heart_page(
 
     let name_size = payload.name.len();
     if name_size > 12 {
-        return Err(StatusCode::BAD_REQUEST);
+        return Err((StatusCode::BAD_REQUEST, "Name too big".to_owned()));
     }
 
     match *state.status.read().await {
-        Status::Pause => Err(StatusCode::SERVICE_UNAVAILABLE),
+        Status::Pause => Err((StatusCode::SERVICE_UNAVAILABLE, "Service paused".to_owned())),
         Status::Discard => Ok(()),
         Status::Play => {
             let hpos = (12 - u16::try_from(name_size).unwrap()).saturating_mul(24);
