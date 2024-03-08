@@ -1,0 +1,87 @@
+apiVersion: akri.sh/v1alpha1
+kind: DiscoveryConfiguration
+metadata:
+  name: udev-display
+spec:
+  instancesCapacity: 1
+  discoveryHandlerName: udev
+  discoveryDetails: |
+    udevRules:
+      - SUBSYSTEM=="drm", ATTR{status}=="connected"
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClass
+metadata:
+  name: udev-display
+driverName: akri.sh
+parametersRef:
+  apiGroup: akri.sh
+  kind: DiscoveryConfiguration
+  name: udev-display
+---
+apiVersion: resource.k8s.io/v1alpha2
+kind: ResourceClaimTemplate
+metadata:
+  name: udev-display-claim
+spec:
+  spec:
+    resourceClassName: udev-display
+---
+apiVersion: akri.sh/v1
+kind: Spore
+metadata:
+  name: udev-display
+  namespace: default
+spec:
+  discoverySelector:
+    name: udev-display
+  deviceSpore:
+    - apiVersion: v1
+      kind: Pod
+      metadata:
+        name: "pod-display-{{INSTANCE_NAME}}"
+      spec:
+        resourceClaims:
+          - name: udev-display
+            source:
+              resourceClaimTemplateName: udev-display-claim
+        containers:
+          - name: wallboard   
+            env:
+              - name: URL
+                value: http://web-form:8080/watch
+              - name: DISPLAY
+                value: ':0'
+            image: registry.opensuse.org/home/atgracey/wallboardos/15.4/firefox:latest
+            imagePullPolicy: Always
+            securityContext:
+              runAsUser: 1000
+            volumeMounts:
+              - mountPath: /tmp
+                name: tmp
+              - mountPath: /home/user/
+                name: home
+              - mountPath: /root/
+                name: home
+          - name: x11
+            image: registry.opensuse.org/home/atgracey/wallboardos/15.4/x11:icewm
+            imagePullPolicy: Always
+            resources:
+              claims:
+                - name: udev-display
+            securityContext:
+              allowPrivilegeEscalation: true
+              privileged: true
+              readOnlyRootFilesystem: false
+            volumeMounts:
+              - mountPath: /tmp
+                name: tmp
+              - mountPath: /root
+                name: home
+        dnsPolicy: ClusterFirst
+        terminationGracePeriodSeconds: 5
+        volumes:
+          - name: tmp
+            emptyDir: {}
+          - name: home
+            emptyDir: {}
