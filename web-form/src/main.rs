@@ -140,7 +140,6 @@ async fn get_watch(State(client): State<Arc<AppState>>) -> Result<Markup, Status
             head {
                 meta charset="utf-8";
                 meta name="viewport" content="width=device-width, initial-scale=1";
-                meta http-equiv="refresh" content="5";
                 title { "Akri KubeCon EU 2024 Demo" }
                 link
                     href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -150,10 +149,17 @@ async fn get_watch(State(client): State<Arc<AppState>>) -> Result<Markup, Status
 
             }
             body style="--bs-body-color: #343867; --bs-body-bg: #EBEDF2; --bs-btn-bg: #78FFC9;" {
-                script
-                    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-                    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-                    crossorigin="anonymous" {}
+                script {
+                    "const parser = new DOMParser();
+                    setInterval(function() {
+                        fetch('/watch').then(function(response){return response.text();}).then(function(text){
+                            const doc = parser.parseFromString(text, 'text/html');
+                            const el = doc.querySelector('#content');
+                            let target = document.querySelector('#content');
+                            target.innerHTML = el.innerHTML;
+                        });
+                    }, 2000)"
+                }
                 .container-fluid {
                     .row .flex-nowrap {
                         .col-auto .col-md-3 .col-xl-4 .px-sm-2 .px-0 {
@@ -162,7 +168,7 @@ async fn get_watch(State(client): State<Arc<AppState>>) -> Result<Markup, Status
                                 img .img-fluid src=(format!("data:image/webp;base64,{}", akri_logo));
                             }
                         }
-                        .col .p-4 .bg-dark {
+                        .col .p-4 .bg-dark #content {
                             .h-50 {
                                 h2 .text-light { "Pods: "}
                                 .row .row-cols-3 .g-4 .mb-3{
