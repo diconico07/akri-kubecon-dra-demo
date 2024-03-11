@@ -56,7 +56,7 @@ spec:
     spec:
       containers:
       - name: web-form
-        image: registry.opensuse.org/home/nbelouin/dra/images/edge/web-form:v1710150518.0874447
+        image: registry.opensuse.org/home/nbelouin/dra/images/edge/web-form:v1710150518.874447
         ports:
         - containerPort: 8080
       serviceAccountName: demo-web-form
